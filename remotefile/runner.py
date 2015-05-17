@@ -19,12 +19,3 @@ class Runner(RemoteFile):
 
     def __build_args(self, args):
         return ' '.join([shlex.quote('{}'.format(arg)) for arg in args])
-
-def main():
-    argv = list(sys.argv)
-    script_path = argv.pop(0)
-    if len(argv) == 0:
-        print('Usage: {} <Path for Python script> [args...]'.format(os.path.basename(script_path)), file=sys.stderr)
-        sys.exit(1)
-    runner = Runner(argv.pop())
-    runner.exec_script(*argv)
