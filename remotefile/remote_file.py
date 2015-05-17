@@ -8,7 +8,7 @@ class RemoteFile:
         self.url = urlparse(path)
 
         if self.is_s3_file():
-            from utils.s3_file import S3File
+            from remotefile.s3_file import S3File
             self.remote = S3File(self.url, *args, **kwargs)
         elif self.is_http_file():
             from remotefile.http_file import HTTPFile
@@ -35,7 +35,7 @@ class RemoteFile:
     def upload(self, src):
         if self.is_local_file(): raise TypeError()
         if not isinstance(src, RemoteFile): raise TypeError()
-        if src.exists(): raise Exception('Source file does not exist.')
+        if not src.exists(): raise Exception('Source file does not exist.')
         return self.remote.upload(src)
 
     def upload_to(self, destination):
