@@ -50,7 +50,10 @@ class RemoteFile:
         return self.remote.local_path
 
     def enable(self, **kwargs):
-        self.get_file_path(**kwargs)
+        if self.exists():
+            self.get_file_path(**kwargs)
+        else:
+            raise Exception('File not found at {}'.format(self.url.geturl()))
 
     def open(self, **kwargs):
         return open(self.get_file_path(**kwargs), 'rb')
