@@ -1,9 +1,7 @@
 from remotefile import Runner, RemoteFile
 from expects import *
-from urllib.parse import ParseResult
 from tempfile import NamedTemporaryFile
 from unittest.mock import patch
-import os, io
 
 def write_script(filepath, content):
     with open(filepath, 'w') as f: f.write(content)

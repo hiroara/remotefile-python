@@ -4,7 +4,6 @@ from urllib.parse import ParseResult
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest.mock import MagicMock
 import os, io
-from mamba.example import PendingExample
 
 
 with description(RemoteFile):
@@ -18,6 +17,8 @@ with description(RemoteFile):
             self.temp_file.close()
 
         with it('should recognized as an local file'):
+            expect(self.remote_file.is_s3_file()).to(be_false)
+            expect(self.remote_file.is_http_file()).to(be_false)
             expect(self.remote_file.is_local_file()).to(be_true)
 
         with it('should have url'):
@@ -89,13 +90,6 @@ with description(RemoteFile):
             with it('should return content of the file'):
                 content = self.remote_file.read().decode('utf-8')
                 expect(content).to(equal(self.sample_text))
-
-
-        with description('is_*_file methods'):
-            with it('should recognize as local file'):
-                expect(self.remote_file.is_s3_file()).to(be_false)
-                expect(self.remote_file.is_http_file()).to(be_false)
-                expect(self.remote_file.is_local_file()).to(be_true)
 
 
         with description('mekir_p method'):

@@ -11,7 +11,7 @@ class RemoteFile:
             from utils.s3_file import S3File
             self.remote = S3File(self.url, *args, **kwargs)
         elif self.is_http_file():
-            from utils.http_file import HTTPFile
+            from remotefile.http_file import HTTPFile
             self.remote = HTTPFile(self.url, *args, **kwargs)
         else:
             self.remote = None
@@ -23,7 +23,6 @@ class RemoteFile:
 
     def download(self):
         if self.remote == None: return
-        self.mkdir_p()
         logging.info('Start to download {}.'.format(self.local_path))
         return self.remote.download()
 
@@ -63,7 +62,7 @@ class RemoteFile:
         return self.url.scheme == 's3'
 
     def is_http_file(self):
-        return self.url.scheme == 'http'
+        return self.url.scheme == 'http' or self.url.scheme == 'https'
 
     def is_local_file(self):
         return not self.is_s3_file() and not self.is_http_file()
