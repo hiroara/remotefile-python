@@ -30,13 +30,14 @@ class S3File(RemoteFile):
         logging.info('Downloading {} has been completed.'.format(self.local_path))
         return True
 
-    def upload(self, src):
-        bucket = self.__get_s3_bucket()
-
-        for f in glob.glob(src.get_file_path()):
-            key = Key(bucket)
-            key.key = re.sub('/?$', '/', self.url.path) + os.path.basename(f)
-            key.set_contents_from_filename(f)
+    def upload(self, src, dir_path=False):
+        key = Key(self.__get_s3_bucket())
+        if dir_path:
+            key.key = re.sub('/?$', '/', self.url.path) + os.path.basename(src.get_file_path())
+        else:
+            key.key = self.url.path
+        key.set_contents_from_filename(src.get_file_path())
+        return True
 
     def __get_region_name(self, region_name):
         if region_name == None: region_name = self.__get_region_name_using_metadata()

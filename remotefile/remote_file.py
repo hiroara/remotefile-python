@@ -1,7 +1,5 @@
 from urllib.parse import urlparse
-import os
-import sys
-import logging
+import os, sys, copy, logging
 
 class RemoteFile:
     def __init__(self, path, *args, **kwargs):
@@ -36,7 +34,14 @@ class RemoteFile:
         if self.is_local_file(): raise TypeError()
         if not isinstance(src, RemoteFile): raise TypeError()
         if not src.exists(): raise Exception('Source file does not exist.')
-        return self.remote.upload(src)
+
+        files = glob.glob(src.get_file_path())
+        if len(files) > 1:
+            return all([self.remote.upload(RemoteFile(f), True) for f in files])
+        elif len(files) == 1:
+            return self.remote.upload(RemoteFile(files[0]), False)
+
+        return False
 
     def upload_to(self, destination):
         return destination.upload(self)
