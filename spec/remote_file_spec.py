@@ -27,8 +27,8 @@ with description(RemoteFile):
 
 
         with description('download method'):
-            with it('should return None'):
-                expect(self.remote_file.download()).to(be_none)
+            with it('should return False'):
+                expect(self.remote_file.download()).to(be_false)
 
 
         with description('exists method'):
@@ -70,7 +70,7 @@ with description(RemoteFile):
 
         with description('enable method'):
             with it('should not do anything'):
-                expect(self.remote_file.enable()).to(be_none)
+                expect(self.remote_file.enable()).to(be_true)
 
 
         with description('open method'):

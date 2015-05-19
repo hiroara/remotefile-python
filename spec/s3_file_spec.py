@@ -80,15 +80,26 @@ with description(S3File):
 
 
     with description('upload method'):
-        with before.each:
-            self.src_temp_file = NamedTemporaryFile()
-            with open(self.src_temp_file.name, 'w') as f: f.write('Some content')
-            self.src_file = RemoteFile(self.src_temp_file.name)
+        with context('when src file exists'):
+            with before.each:
+                self.src_temp_file = NamedTemporaryFile()
+                with open(self.src_temp_file.name, 'w') as f: f.write('Some content')
+                self.src_file = RemoteFile(self.src_temp_file.name)
 
-        with it('should upload to provided url'):
-            with patch.object(S3File, '_S3File__get_s3_bucket', return_value=self.bucket):
-                with patch.object(Key, 'set_contents_from_filename') as setter:
-                    self.remote_file.upload(self.src_file)
-                    expect(setter.called).to(be_true)
-                    first_arg = setter.call_args[0][0]
-                    expect(first_arg).to(equal(self.src_file.get_file_path()))
+            with it('should upload to provided url'):
+                with patch.object(S3File, '_S3File__get_s3_bucket', return_value=self.bucket):
+                    with patch.object(Key, 'set_contents_from_filename') as setter:
+                        expect(self.remote_file.upload(self.src_file)).to(be_true)
+                        expect(setter.called).to(be_true)
+                        first_arg = setter.call_args[0][0]
+                        expect(first_arg).to(equal(self.src_file.get_file_path()))
+
+        with context('when src file does not exist'):
+            with before.each:
+                self.src_temp_file = NamedTemporaryFile()
+                self.src_temp_file.close() # delete
+                self.src_file = RemoteFile(self.src_temp_file.name)
+            with it('should upload to provided url'):
+                with patch.object(S3File, '_S3File__get_s3_bucket', return_value=self.bucket) as get_s3_bucket:
+                    expect(self.remote_file.upload(self.src_file)).to(be_false)
+                    expect(get_s3_bucket.called).to(be_false)

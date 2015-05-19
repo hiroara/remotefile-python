@@ -31,7 +31,9 @@ class S3File(RemoteFile):
         return True
 
     def upload(self, src, dir_path=False):
+        if not src.exists_in_local(): return False
         key = Key(self.__get_s3_bucket())
+
         if dir_path:
             key.key = re.sub('/?$', '/', self.url.path) + os.path.basename(src.get_file_path())
         else:
