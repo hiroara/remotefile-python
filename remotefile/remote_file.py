@@ -20,7 +20,7 @@ class RemoteFile:
             self.local_path = self.remote.local_path
 
     def download(self):
-        if self.remote == None: return
+        if self.remote == None: return False
         logging.info('Start to download {}.'.format(self.local_path))
         return self.remote.download()
 
@@ -47,7 +47,7 @@ class RemoteFile:
         return destination.upload(self)
 
     def get_file_path(self, force=False):
-        if self.is_local_file(): return self.local_path
+        if self.remote == None: return self.local_path
         if not force and os.path.isfile(self.local_path): return self.local_path
 
         if not self.download():
@@ -57,8 +57,9 @@ class RemoteFile:
     def enable(self, **kwargs):
         if self.exists():
             self.get_file_path(**kwargs)
+            return True
         else:
-            raise Exception('File not found at {}'.format(self.url.geturl()))
+            return False
 
     def open(self, **kwargs):
         return open(self.get_file_path(**kwargs), 'rb')
