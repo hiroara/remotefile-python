@@ -20,6 +20,4 @@ class Server(RemoteFile):
 
     def clear_loggers(self):
         root = logging.getLogger()
-        print(root)
-        print(root.handlers)
         [root.removeHandler(handler) for handler in root.handlers or []]
