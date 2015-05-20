@@ -5,7 +5,7 @@ import urllib.request as request
 from urllib.error import HTTPError
 
 class HTTPFile(RemoteFile):
-    def __init__(self, url, cache_dir='/tmp/http', region_name=None):
+    def __init__(self, url, cache_dir='/tmp/http', region_name=None, *args, **kwargs):
         self.url = url
         self.cache_dir = cache_dir
         self.local_path = self.get_local_path()

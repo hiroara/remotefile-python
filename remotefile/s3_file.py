@@ -9,7 +9,7 @@ from boto.s3.key import Key
 from boto.exception import S3ResponseError
 
 class S3File(RemoteFile):
-    def __init__(self, url, cache_dir='/tmp/s3', region_name=None):
+    def __init__(self, url, cache_dir='/tmp/s3', region_name=None, *args, **kwargs):
         self.url = url
         self.region_name = self.__get_region_name(region_name)
         self.cache_dir = cache_dir
