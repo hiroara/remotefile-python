@@ -11,8 +11,15 @@ class Server(RemoteFile):
     def serve_forever(self, *args):
         self.enable(force=True)
         from importlib.machinery import SourceFileLoader
+        self.clear_loggers()
         handler = SourceFileLoader('handler', self.local_path).load_module()
         Handler = handler.get_handler(*args)
         server = TCPServer(('0.0.0.0', self.port), Handler)
         logging.info('Serving at port {:d} with handler: {}'.format(self.port, Handler))
         server.serve_forever()
+
+    def clear_loggers(self):
+        root = logging.getLogger()
+        print(root)
+        print(root.handlers)
+        [root.removeHandler(handler) for handler in root.handlers or []]
