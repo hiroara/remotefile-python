@@ -1,7 +1,7 @@
 from remotefile.remote_file import RemoteFile
 
 import logging
-from socketserver import TCPServer
+from http.server import HTTPServer
 
 class Server(RemoteFile):
     def __init__(self, path, *args, **kwargs):
@@ -12,7 +12,7 @@ class Server(RemoteFile):
         self.configure_loggings()
         handler = self.load_as_module('handler', force=True)
         Handler = handler.get_handler(*args)
-        server = TCPServer(('0.0.0.0', self.port), Handler)
+        server = HTTPServer(('0.0.0.0', self.port), Handler)
         logging.info('Serving at port {:d} with handler: {}'.format(self.port, Handler))
         server.serve_forever()
 

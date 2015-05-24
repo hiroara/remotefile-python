@@ -3,7 +3,7 @@ from expects import *
 from tempfile import NamedTemporaryFile
 from unittest.mock import patch
 import os
-from socketserver import TCPServer
+from http.server import HTTPServer
 
 def write_script(filepath, content):
     with open(filepath, 'w') as f: f.write(content)
@@ -16,7 +16,7 @@ with description(Server):
 
         with it('should enable script file forcibly'):
             with patch.object(Server, 'enable'):
-                with patch.object(TCPServer, 'serve_forever') as serve_method:
+                with patch.object(HTTPServer, 'serve_forever') as serve_method:
                     self.server.serve_forever()
                     expected_args = ((), { 'force': True })
                     expect(self.server.enable.call_args).to(equal(expected_args))
