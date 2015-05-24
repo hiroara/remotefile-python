@@ -92,6 +92,17 @@ with description(RemoteFile):
                 expect(content).to(equal(self.sample_text))
 
 
+        with description('load_as_module method'):
+            with before.each:
+                self.sample_text = 'def upcase(s): return s.upper()'
+                with open(self.temp_file.name, 'w') as f:
+                    f.write(self.sample_text)
+
+            with it('should return content of the file'):
+                module = self.remote_file.load_as_module('some_module')
+                expect(module.upcase('test')).to(equal('TEST'))
+
+
         with description('mekir_p method'):
             with before.each:
                 self.temp_dir = TemporaryDirectory()

@@ -9,15 +9,15 @@ class Server(RemoteFile):
         self.port = kwargs['port'] if 'port' in kwargs else 8000
 
     def serve_forever(self, *args):
-        self.enable(force=True)
-        from importlib.machinery import SourceFileLoader
-        self.clear_loggers()
-        handler = SourceFileLoader('handler', self.local_path).load_module()
+        self.configure_loggings()
+        handler = self.load_as_module('handler', force=True)
         Handler = handler.get_handler(*args)
         server = TCPServer(('0.0.0.0', self.port), Handler)
         logging.info('Serving at port {:d} with handler: {}'.format(self.port, Handler))
         server.serve_forever()
 
-    def clear_loggers(self):
+    def configure_loggings(self):
         root = logging.getLogger()
         [root.removeHandler(handler) for handler in root.handlers or []]
+
+        logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)

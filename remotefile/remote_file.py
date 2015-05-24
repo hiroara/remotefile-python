@@ -1,5 +1,6 @@
-from urllib.parse import urlparse
 import os, sys, copy, logging, glob
+from urllib.parse import urlparse
+from importlib.machinery import SourceFileLoader
 
 class RemoteFile:
     def __init__(self, path, *args, **kwargs):
@@ -72,6 +73,12 @@ class RemoteFile:
 
     def read(self, force=False):
         with self.open(force=force) as f: return f.read()
+
+    def load_as_module(self, name, **kwargs):
+        if self.enable(**kwargs):
+            return SourceFileLoader(name, self.local_path).load_module()
+        else:
+            return None
 
     def is_s3_file(self):
         return self.url.scheme == 's3'
