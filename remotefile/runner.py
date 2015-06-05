@@ -23,7 +23,4 @@ class Runner(RemoteFile):
             sys.exit(p.returncode)
 
     def __build_command(self, args):
-        return list(filter(lambda s: len(s.strip()) > 0, ['/usr/bin/env', 'python', self.local_path, self.__build_args(args)]))
-
-    def __build_args(self, args):
-        return ' '.join([shlex.quote('{}'.format(arg)) for arg in args])
+        return list(filter(lambda s: len(s.strip()) > 0, ['/usr/bin/env', 'python', self.local_path] + list(args)))
