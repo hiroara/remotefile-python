@@ -9,7 +9,7 @@ def parse_args():
     argparser.add_argument('-a', '--arguments', type=str, help='Arguments to pass to script')
     argparser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
     argparser.add_argument('-r region', '--region', type=str, help='AWS Region')
-    argparser.set_defaults(verbose=False, port=8000)
+    argparser.set_defaults(arguments='', verbose=False, port=8000)
     return argparser.parse_args()
 
 def main():
