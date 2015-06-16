@@ -4,9 +4,12 @@ import logging, os, sys, shlex, subprocess, signal
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-class Runner(RemoteFile):
-    def exec_script(self, *args):
-        self.enable(force=True)
+class Runner:
+    def __init__(self, *args, **kwargs):
+        self.remote = RemoteFile.build(*args, **kwargs)
+
+    def exec_script(self, *args, force=True):
+        self.remote.enable(force=force)
         cmd = self.__build_command(args)
         logging.info('Now invoking `{}`.'.format(' '.join(cmd)))
 
@@ -23,4 +26,4 @@ class Runner(RemoteFile):
             sys.exit(p.returncode)
 
     def __build_command(self, args):
-        return list(filter(lambda s: len(s.strip()) > 0, ['/usr/bin/env', 'python', self.local_path] + list(args)))
+        return list(filter(lambda s: len(s.strip()) > 0, ['/usr/bin/env', 'python', self.remote.local_path] + list(args)))

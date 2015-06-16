@@ -12,7 +12,7 @@ with description(S3File):
         self.sample_url = 's3://ari-hiro.com/example/remotefile-python/test.txt'
         self.cache_dir = TemporaryDirectory()
         self.region = 'ap-northeast-1'
-        self.remote_file = RemoteFile(self.sample_url, cache_dir=self.cache_dir.name, region_name=self.region)
+        self.remote_file = RemoteFile.build(self.sample_url, cache_dir=self.cache_dir.name, region_name=self.region)
 
         self.bucket = Bucket()
         self.bucket.get_key = MagicMock('get_key')
@@ -30,7 +30,7 @@ with description(S3File):
 
     with description('get_local_path method'):
         with it('should return url'):
-            under_cache_path = self.remote_file.remote.get_local_path().split(self.cache_dir.name)[1]
+            under_cache_path = self.remote_file.get_local_path().split(self.cache_dir.name)[1]
             expected_path = os.path.join('/', self.region, self.remote_file.url.netloc, re.sub('^/', '', self.remote_file.url.path))
             expect(under_cache_path).to(equal(expected_path))
 
@@ -84,7 +84,7 @@ with description(S3File):
             with before.each:
                 self.src_temp_file = NamedTemporaryFile()
                 with open(self.src_temp_file.name, 'w') as f: f.write('Some content')
-                self.src_file = RemoteFile(self.src_temp_file.name)
+                self.src_file = RemoteFile.build(self.src_temp_file.name)
 
             with it('should upload to provided url'):
                 with patch.object(S3File, '_S3File__get_s3_bucket', return_value=self.bucket):
@@ -98,7 +98,7 @@ with description(S3File):
             with before.each:
                 self.src_temp_file = NamedTemporaryFile()
                 self.src_temp_file.close() # delete
-                self.src_file = RemoteFile(self.src_temp_file.name)
+                self.src_file = RemoteFile.build(self.src_temp_file.name)
             with it('should upload to provided url'):
                 with patch.object(S3File, '_S3File__get_s3_bucket', return_value=self.bucket) as get_s3_bucket:
                     expect(self.remote_file.upload(self.src_file)).to(be_false)

@@ -13,10 +13,10 @@ with description(Runner):
             self.runner = Runner(self.temp_script.name)
 
         with it('should enable script file forcibly'):
-            with patch.object(Runner, 'enable') as method:
+            with patch.object(RemoteFile, 'enable') as method:
                 self.runner.exec_script()
                 expected_args = ((), { 'force': True })
-                expect(self.runner.enable.call_args).to(equal(expected_args))
+                expect(self.runner.remote.enable.call_args).to(equal(expected_args))
 
         with context('a script file has content'):
             with before.each:
@@ -36,10 +36,11 @@ with open(script_path, 'w') as f:
             with it('should execute provided script'):
                 test_arg = 'Test Argument with Whitespace'
                 self.runner.exec_script(self.result_file.name, test_arg)
+                f = None
                 try:
-                    f = RemoteFile(self.result_file.name).open()
+                    f = RemoteFile.build(self.result_file.name).open()
                     lines = f.readlines()
                     expect(lines[0].rstrip().decode('utf-8')).to(equal(self.sample_text))
                     expect(lines[1].rstrip().decode('utf-8')).to(equal(test_arg))
                 finally:
-                    f.close()
+                    if f is not None: f.close()

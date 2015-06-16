@@ -3,27 +3,26 @@ from urllib.parse import urlparse
 from importlib.machinery import SourceFileLoader
 
 class RemoteFile:
-    def __init__(self, path, *args, **kwargs):
-        self.url = urlparse(path)
+    @classmethod
+    def build(cls, path, *args, **kwargs):
+        url = urlparse(path)
 
-        if self.is_s3_file():
+        if cls.is_s3_url(url):
             from remotefile.s3_file import S3File
-            self.remote = S3File(self.url, *args, **kwargs)
-        elif self.is_http_file():
+            return S3File(url, *args, **kwargs)
+        elif cls.is_http_url(url):
             from remotefile.http_file import HTTPFile
-            self.remote = HTTPFile(self.url, *args, **kwargs)
+            return HTTPFile(url, *args, **kwargs)
         else:
-            self.remote = None
+            return RemoteFile(url, *args, **kwargs)
+
+    def __init__(self, url, *args, **kwargs):
+        self.url = url
 
         if self.is_local_file():
             self.local_path = self.url.path
-        else:
-            self.local_path = self.remote.local_path
 
-    def download(self):
-        if self.remote == None: return False
-        logging.info('Start to download {}.'.format(self.local_path))
-        return self.remote.download()
+    def download(self): return False
 
     def exists_in_local(self):
         return os.path.isfile(self.local_path)
@@ -53,20 +52,16 @@ class RemoteFile:
     def upload_to(self, destination):
         return destination.upload(self)
 
-    def get_file_path(self, force=False):
-        if self.remote == None: return self.local_path
-        if not force and os.path.isfile(self.local_path): return self.local_path
+    def get_file_path(self, force=False): return self.local_path
 
-        if not self.download():
-            logging.info('Remote file not found: {}'.format(self.remote.url))
-        return self.remote.local_path
-
-    def enable(self, **kwargs):
-        if self.exists():
-            self.get_file_path(**kwargs)
+    def enable(self, force=False, **kwargs):
+        if self.is_local_file():
+            return self.exists_in_local()
+        elif not force and self.exists_in_local():
             return True
         else:
-            return False
+            return self.download(**kwargs)
+
 
     def open(self, **kwargs):
         return open(self.get_file_path(**kwargs), 'rb')
@@ -80,14 +75,23 @@ class RemoteFile:
         else:
             return None
 
+    @classmethod
+    def is_s3_url(cls, url):
+        return url.scheme == 's3'
     def is_s3_file(self):
-        return self.url.scheme == 's3'
+        return type(self).is_s3_url(self.url)
 
+    @classmethod
+    def is_http_url(cls, url):
+        return url.scheme == 'http' or url.scheme == 'https'
     def is_http_file(self):
-        return self.url.scheme == 'http' or self.url.scheme == 'https'
+        return type(self).is_http_url(self.url)
 
+    @classmethod
+    def is_local_url(cls, url):
+        return not cls.is_s3_url(url) and not cls.is_http_url(url)
     def is_local_file(self):
-        return not self.is_s3_file() and not self.is_http_file()
+        return type(self).is_local_url(self.url)
 
     def mkdir_p(self):
         os.makedirs(os.path.dirname(self.local_path), exist_ok=True)

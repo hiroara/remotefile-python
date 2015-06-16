@@ -10,7 +10,7 @@ with description(HTTPFile):
     with before.each:
         self.sample_url = 'https://raw.githubusercontent.com/hiroara/remotefile-python/master/README.md'
         self.cache_dir = TemporaryDirectory()
-        self.remote_file = RemoteFile(self.sample_url, cache_dir=self.cache_dir.name)
+        self.remote_file = RemoteFile.build(self.sample_url, cache_dir=self.cache_dir.name)
 
     with after.each:
         self.cache_dir.cleanup()
@@ -23,7 +23,7 @@ with description(HTTPFile):
 
     with description('get_local_path method'):
         with it('should return url'):
-            under_cache_path = self.remote_file.remote.get_local_path().split(self.cache_dir.name)[1]
+            under_cache_path = self.remote_file.get_local_path().split(self.cache_dir.name)[1]
             expected_path = os.path.join('/', self.remote_file.url.netloc, re.sub('^/', '', self.remote_file.url.path))
             expect(under_cache_path).to(equal(expected_path))
 

@@ -11,7 +11,7 @@ with description(RemoteFile):
         with before.each:
             self.temp_file = NamedTemporaryFile()
             self.path = self.temp_file.name
-            self.remote_file = RemoteFile(self.path)
+            self.remote_file = RemoteFile.build(self.path)
 
         with after.each:
             self.temp_file.close()
@@ -52,7 +52,7 @@ with description(RemoteFile):
         with description('upload_to method'):
             with before.each:
                 self.other_temp_file = NamedTemporaryFile()
-                self.other_file = RemoteFile(self.other_temp_file.name)
+                self.other_file = RemoteFile.build(self.other_temp_file.name)
                 self.other_file.upload = MagicMock()
             with after.each:
                 self.other_temp_file.close()
@@ -107,7 +107,7 @@ with description(RemoteFile):
             with before.each:
                 self.temp_dir = TemporaryDirectory()
                 self.temp_dir.cleanup()
-                self.remote_file = RemoteFile(os.path.join(self.temp_dir.name, 'test.txt'))
+                self.remote_file = RemoteFile.build(os.path.join(self.temp_dir.name, 'test.txt'))
 
             with after.each:
                 self.temp_dir.cleanup()
