@@ -28,22 +28,10 @@ class RemoteFile:
         return os.path.isfile(self.local_path)
 
     def exists(self):
-        if self.is_local_file():
-            return os.path.isfile(self.local_path)
-        else:
-            return self.remote.exists()
+        return os.path.isfile(self.local_path)
 
     def upload(self, src):
-        if self.is_local_file(): raise TypeError()
-        if not isinstance(src, RemoteFile): raise TypeError()
-
-        files = glob.glob(src.get_file_path())
-        if len(files) > 1:
-            return all([self.remote.upload(RemoteFile(f), True) for f in files])
-        elif len(files) == 1:
-            return self.remote.upload(RemoteFile(files[0]), False)
-
-        return False
+        raise TypeError()
 
     def upload_with_exception(self, src):
         if not self.upload(src):

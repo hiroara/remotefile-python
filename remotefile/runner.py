@@ -13,16 +13,34 @@ class Runner:
         cmd = self.__build_command(args)
         logging.info('Now invoking `{}`.'.format(' '.join(cmd)))
 
-        p = subprocess.Popen(cmd)
+        self.__exec(cmd)
+
+
+    def interpreter(self, force=True):
+        self.remote.enable(force=force)
+        cmd = ['/usr/bin/env', 'python', ]
+        logging.info('Now invoking `{}`.'.format(' '.join(cmd)))
+
+        env = os.environ.copy()
+        src_path = os.path.dirname(self.remote.local_path)
+        if 'PYTHONPATH' in env:
+            env['PYTHONPATH'] = env['PYTHONPATH'] + ':{}'.format(src_path)
+        else:
+            env['PYTHONPATH'] = src_path
+
+        self.__exec(cmd, env=env)
+
+    def __exec(self, command, **kwargs):
+        p = subprocess.Popen(command, **kwargs)
         delegate_signal = lambda signal, frame: p.send_signal(signal)
         signal.signal(signal.SIGINT, delegate_signal)
         signal.signal(signal.SIGTERM, delegate_signal)
         p.wait()
 
         if p.returncode == 0:
-            logging.info('Command `{}` has been successfully completed.'.format(' '.join(cmd)))
+            logging.info('Command `{}` has been successfully completed.'.format(' '.join(command)))
         else:
-            logging.info('Command `{}` has been completed with error code {}.'.format(' '.join(cmd), p.returncode))
+            logging.info('Command `{}` has been completed with error code {}.'.format(' '.join(command), p.returncode))
             sys.exit(p.returncode)
 
     def __build_command(self, args):
