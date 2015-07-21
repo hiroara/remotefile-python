@@ -20,8 +20,8 @@ def main():
     if args.verbose: logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
     from remotefile.runner import Runner
-    runner = Runner(args.script, cache_dir='/tmp/src', region_name=args.region)
+    runner = Runner(args.script, cache_dir='/tmp/src', region_name=args.region, use_cache=args.use_cache)
     if args.interpreter:
-        runner.interpreter(force=(not args.use_cache))
+        runner.interpreter()
     else:
-        runner.exec_script(*args.arguments.split(' '), force=(not args.use_cache))
+        runner.exec_script(*args.arguments.split(' '))

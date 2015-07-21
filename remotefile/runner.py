@@ -5,23 +5,26 @@ import logging, os, sys, shlex, subprocess, signal
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 class Runner:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, use_cache=False, **kwargs):
         self.remote = RemoteFile.build(*args, **kwargs)
+        self.use_cache = use_cache
 
-    def exec_script(self, *args, force=True):
+    def exec_script(self, *args, force=None):
+        if force is None: force = not self.use_cache
         self.remote.enable(force=force)
         cmd = self.__build_command(args)
         logging.info('Now invoking `{}`.'.format(' '.join(cmd)))
 
-        self.__exec(cmd)
+        self.__exec(cmd, env=self.__local_env())
 
 
-    def interpreter(self, force=True):
+    def interpreter(self, force=None):
+        if force is None: force = not self.use_cache
         self.remote.enable(force=force)
         cmd = ['/usr/bin/env', 'python', ]
         logging.info('Now invoking `{}`.'.format(' '.join(cmd)))
 
-        env = os.environ.copy()
+        env = self.__local_env()
         src_path = os.path.dirname(self.remote.local_path)
         if 'PYTHONPATH' in env:
             env['PYTHONPATH'] = env['PYTHONPATH'] + ':{}'.format(src_path)
@@ -45,3 +48,8 @@ class Runner:
 
     def __build_command(self, args):
         return list(filter(lambda s: len(s.strip()) > 0, ['/usr/bin/env', 'python', self.remote.local_path] + list(args)))
+
+    def __local_env(self):
+        env = os.environ.copy()
+        if self.use_cache: env['USE_CACHE'] = '1'
+        return env
