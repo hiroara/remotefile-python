@@ -83,3 +83,7 @@ class RemoteFile:
 
     def mkdir_p(self):
         os.makedirs(os.path.dirname(self.local_path), exist_ok=True)
+
+    @staticmethod
+    def is_using_cache():
+        return os.environ.get('USE_CACHE') == '1'
